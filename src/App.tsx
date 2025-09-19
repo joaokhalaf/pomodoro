@@ -58,7 +58,7 @@ function App() {
             />
           </div>
 
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 md:col-span-3">
             <TodoList
               todos={todos}
               onAddTodo={addTodo}
@@ -67,7 +67,7 @@ function App() {
             />
           </div>
 
-          <div className="grid grid-cols-2 lg:col-span-2 gap-6">
+          <div className="grid grid-cols-2 lg:col-span-2 md:col-span-3 gap-6">
             <CoffeeTracker />
             <MusicPlayer />
           </div>
