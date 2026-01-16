@@ -1,12 +1,13 @@
 import { useState } from "react";
 import useLocalStorage from "./hooks/useLocalStorage";
-import type { PomodoroConfig, Todo, BackgroundImage } from "./types";
+import type { PomodoroConfig } from "./types";
+import { useTodos } from "./hooks/useTodos";
+import { useBackground } from "./hooks/useBackground";
 
 import { PomodoroTimer } from "./components/PomodoroTimer";
 import { SettingsModal } from "./components/SettingsModal";
 import { CoffeeTracker } from "./components/CoffeTracker";
 import { MusicPlayer } from "./components/MusicPlayer";
-import { backgroundImages } from "./services/background";
 import { TodoList } from "./components/TodoList";
 import { BackgroundSelector } from "./components/Background";
 
@@ -22,24 +23,9 @@ const initialConfig: PomodoroConfig = {
 
 function App() {
   const [config, setConfig] = useLocalStorage<PomodoroConfig>('pomodoroConfig', initialConfig);
-  const [todos, setTodos] = useLocalStorage<Todo[]>('todos', []);
-  const [currentBg, setCurrentBg] = useLocalStorage<BackgroundImage>('background', backgroundImages[0]);
+  const { todos, addTodo, toggleTodo, deleteTodo } = useTodos();
+  const { currentBg, setCurrentBg, backgroundImages } = useBackground();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
-  const addTodo = (text: string) => {
-    const newTodo: Todo = { id: Date.now(), text, completed: false };
-    setTodos(prevTodos => [...prevTodos, newTodo]);
-  };
-
-  const toggleTodo = (id: number) => {
-    setTodos(todos.map(todo =>
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    ));
-  };
-
-  const deleteTodo = (id: number) => {
-    setTodos(todos.filter(todo => todo.id !== id));
-  };
 
   return (
     <main

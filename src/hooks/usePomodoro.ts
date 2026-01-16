@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import type { PomodoroConfig } from '../types';
 
 export const usePomodoro = (config: PomodoroConfig) => {
@@ -7,14 +7,14 @@ export const usePomodoro = (config: PomodoroConfig) => {
   const [isBreak, setIsBreak] = useState(false);
   const [isLongBreak, setIsLongBreak] = useState(false);
   const [sessions, setSessions] = useState(0);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const totalDuration = useCallback(() => {
+  const totalDuration = useMemo(() => {
     if (isBreak) {
       return isLongBreak ? config.longBreakDuration * 60 : config.shortBreakDuration * 60;
     }
     return config.workDuration * 60;
-  }, [isBreak, isLongBreak, config]);
+  }, [isBreak, isLongBreak, config.longBreakDuration, config.shortBreakDuration, config.workDuration]);
 
   useEffect(() => {
     if (isActive && timeLeft > 0) {
@@ -51,7 +51,7 @@ export const usePomodoro = (config: PomodoroConfig) => {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isActive, timeLeft, isBreak, config]);
+  }, [isActive, timeLeft, isBreak, isLongBreak, config]);
 
   // Reset timer when config changes
   useEffect(() => {
@@ -90,6 +90,6 @@ export const usePomodoro = (config: PomodoroConfig) => {
     toggleTimer,
     resetTimer,
     formatTime,
-    totalDuration: totalDuration(),
+    totalDuration,
   };
 };
