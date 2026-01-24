@@ -1,16 +1,50 @@
 import { useState } from 'react';
 import type { Todo } from '../types';
-import { FaPlus, FaTrash } from "react-icons/fa6";
+import { FaPlus, FaTrash, FaGripVertical } from "react-icons/fa6";
 
 interface TodoListProps {
   todos: Todo[];
   onAddTodo: (text: string) => void;
   onToggleTodo: (id: number) => void;
   onDeleteTodo: (id: number) => void;
+  onReorderTodos?: (fromIndex: number, toIndex: number) => void;
 }
 
-export function TodoList({ todos, onAddTodo, onToggleTodo, onDeleteTodo }: TodoListProps) {
+export function TodoList({ todos, onAddTodo, onToggleTodo, onDeleteTodo, onReorderTodos }: TodoListProps) {
   const [newTodoText, setNewTodoText] = useState('');
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', index.toString());
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverIndex(index);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, toIndex: number) => {
+    e.preventDefault();
+    const fromIndex = draggedIndex;
+    if (fromIndex !== null && fromIndex !== toIndex && onReorderTodos) {
+      onReorderTodos(fromIndex, toIndex);
+    }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,8 +70,28 @@ export function TodoList({ todos, onAddTodo, onToggleTodo, onDeleteTodo }: TodoL
         </button>
       </form>
       <ul className="space-y-2 overflow-y-auto flex-grow pr-2">
-        {todos.map(todo => (
-          <li key={todo.id} className="flex items-center bg-white/5 p-3 rounded-lg group">
+        {todos.map((todo, index) => (
+          <li
+            key={todo.id}
+            draggable={!!onReorderTodos}
+            onDragStart={(e) => handleDragStart(e, index)}
+            onDragOver={(e) => handleDragOver(e, index)}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, index)}
+            onDragEnd={handleDragEnd}
+            className={`flex items-center bg-white/5 p-3 rounded-lg group transition-all ${
+              draggedIndex === index ? 'opacity-50' : ''
+            } ${
+              dragOverIndex === index && draggedIndex !== index
+                ? 'border-t-2 border-cyan-400'
+                : 'border-t-2 border-transparent'
+            } ${onReorderTodos ? 'cursor-grab active:cursor-grabbing' : ''}`}
+          >
+            {onReorderTodos && (
+              <span className="text-gray-500 mr-2 cursor-grab">
+                <FaGripVertical size={12} />
+              </span>
+            )}
             <input
               type="checkbox"
               checked={todo.completed}

@@ -1,9 +1,64 @@
 @import "tailwindcss";
 
-
 :root {
   margin: 0;
   padding: 0;
-  color: white;
   box-sizing: border-box;
+}
+
+/* Dark theme (default) */
+:root.dark {
+  color: white;
+}
+
+:root.dark .glass-panel {
+  background: rgba(0, 0, 0, 0.2);
+  color: white;
+}
+
+/* Light theme */
+:root.light {
+  color: #1f2937;
+}
+
+:root.light .glass-panel {
+  background: rgba(255, 255, 255, 0.7);
+  color: #1f2937;
+}
+
+:root.light .backdrop-blur-xl {
+  --tw-backdrop-blur: blur(16px);
+}
+
+/* Light theme overrides */
+.light .bg-black\/20 {
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+.light .text-white {
+  color: #1f2937;
+}
+
+.light .text-gray-300 {
+  color: #374151;
+}
+
+.light .text-gray-400 {
+  color: #6b7280;
+}
+
+.light .text-gray-500 {
+  color: #9ca3af;
+}
+
+.light .bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.light .bg-white\/20 {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.light .border-white\/10 {
+  border-color: rgba(0, 0, 0, 0.1);
 }

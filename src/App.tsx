@@ -3,6 +3,8 @@ import useLocalStorage from "./hooks/useLocalStorage";
 import type { PomodoroConfig } from "./types";
 import { useTodos } from "./hooks/useTodos";
 import { useBackground } from "./hooks/useBackground";
+import { useStats } from "./hooks/useStats";
+import { useTheme } from "./hooks/useTheme";
 
 import { PomodoroTimer } from "./components/PomodoroTimer";
 import { SettingsModal } from "./components/SettingsModal";
@@ -10,6 +12,8 @@ import { CoffeeTracker } from "./components/CoffeTracker";
 import { MusicPlayer } from "./components/MusicPlayer";
 import { TodoList } from "./components/TodoList";
 import { BackgroundSelector } from "./components/Background";
+import { StatsPanel } from "./components/StatsPanel";
+import { ThemeToggle } from "./components/ThemeToggle";
 
 const initialConfig: PomodoroConfig = {
   workDuration: 25,
@@ -23,8 +27,10 @@ const initialConfig: PomodoroConfig = {
 
 function App() {
   const [config, setConfig] = useLocalStorage<PomodoroConfig>('pomodoroConfig', initialConfig);
-  const { todos, addTodo, toggleTodo, deleteTodo } = useTodos();
+  const { todos, addTodo, toggleTodo, deleteTodo, reorderTodos } = useTodos();
   const { currentBg, setCurrentBg, backgroundImages } = useBackground();
+  const { stats, recordSession, resetStats } = useStats();
+  const { theme, toggleTheme } = useTheme();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   return (
@@ -41,7 +47,12 @@ function App() {
             <PomodoroTimer
               config={config}
               onOpenSettings={() => setIsSettingsOpen(true)}
+              onSessionComplete={recordSession}
             />
+          </div>
+
+          <div className="lg:col-span-2 md:col-span-3">
+            <StatsPanel stats={stats} onReset={resetStats} />
           </div>
 
           <div className="lg:col-span-2 md:col-span-3">
@@ -50,6 +61,7 @@ function App() {
               onAddTodo={addTodo}
               onToggleTodo={toggleTodo}
               onDeleteTodo={deleteTodo}
+              onReorderTodos={reorderTodos}
             />
           </div>
 
@@ -60,12 +72,14 @@ function App() {
         </div>
       </div>
 
-  <BackgroundSelector
-        className="absolute bottom-6 right-6 z-20"
-        images={backgroundImages}
-        selected={currentBg}
-        onSelect={setCurrentBg}
-      />
+      <div className="absolute bottom-6 right-6 z-20 flex gap-3">
+        <ThemeToggle theme={theme} onToggle={toggleTheme} />
+        <BackgroundSelector
+          images={backgroundImages}
+          selected={currentBg}
+          onSelect={setCurrentBg}
+        />
+      </div>
 
 
       <SettingsModal

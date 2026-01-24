@@ -1,7 +1,34 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import type { PomodoroConfig } from '../types';
 
-export const usePomodoro = (config: PomodoroConfig) => {
+const playNotificationSound = () => {
+  try {
+    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const audioContext = new AudioContextClass();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.frequency.value = 800;
+    oscillator.type = 'sine';
+
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.5);
+  } catch {
+    // Audio not supported, fail silently
+  }
+};
+
+interface UsePomodoroOptions {
+  onSessionComplete?: (workMinutes: number) => void;
+}
+
+export const usePomodoro = (config: PomodoroConfig, options?: UsePomodoroOptions) => {
   const [timeLeft, setTimeLeft] = useState(config.workDuration * 60);
   const [isActive, setIsActive] = useState(false);
   const [isBreak, setIsBreak] = useState(false);
@@ -24,7 +51,14 @@ export const usePomodoro = (config: PomodoroConfig) => {
     } else if (timeLeft === 0) {
       if (intervalRef.current) clearInterval(intervalRef.current);
 
+      if (config.soundNotifications) {
+        playNotificationSound();
+      }
+
       if (!isBreak) {
+        // Work session completed
+        options?.onSessionComplete?.(config.workDuration);
+
         setSessions((prev) => {
           const newSessions = prev + 1;
           const shouldLongBreak = newSessions % config.sessionsUntilLongBreak === 0;
@@ -51,7 +85,7 @@ export const usePomodoro = (config: PomodoroConfig) => {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isActive, timeLeft, isBreak, isLongBreak, config]);
+  }, [isActive, timeLeft, isBreak, isLongBreak, config, options]);
 
   // Reset timer when config changes
   useEffect(() => {

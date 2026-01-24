@@ -31,5 +31,17 @@ export const useTodos = () => {
     [setTodos]
   );
 
-  return { todos, addTodo, toggleTodo, deleteTodo };
+  const reorderTodos = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      setTodos((prevTodos) => {
+        const result = [...prevTodos];
+        const [removed] = result.splice(fromIndex, 1);
+        result.splice(toIndex, 0, removed);
+        return result;
+      });
+    },
+    [setTodos]
+  );
+
+  return { todos, addTodo, toggleTodo, deleteTodo, reorderTodos };
 };

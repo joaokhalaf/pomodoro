@@ -20,4 +20,12 @@ export interface BackgroundImage{
   name: string;
 }
 
+export interface PomodoroStats {
+  totalSessions: number;
+  totalFocusMinutes: number;
+  todaySessions: number;
+  todayFocusMinutes: number;
+  lastSessionDate: string;
+}
+
 
