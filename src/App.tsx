@@ -4,8 +4,6 @@ import type { PomodoroConfig } from "./types";
 import { useTodos } from "./hooks/useTodos";
 import { useBackground } from "./hooks/useBackground";
 import { useStats } from "./hooks/useStats";
-import { useTheme } from "./hooks/useTheme";
-
 import { PomodoroTimer } from "./components/PomodoroTimer";
 import { SettingsModal } from "./components/SettingsModal";
 import { CoffeeTracker } from "./components/CoffeTracker";
@@ -13,7 +11,6 @@ import { MusicPlayer } from "./components/MusicPlayer";
 import { TodoList } from "./components/TodoList";
 import { BackgroundSelector } from "./components/Background";
 import { StatsPanel } from "./components/StatsPanel";
-import { ThemeToggle } from "./components/ThemeToggle";
 
 const initialConfig: PomodoroConfig = {
   workDuration: 25,
@@ -30,7 +27,6 @@ function App() {
   const { todos, addTodo, toggleTodo, deleteTodo, reorderTodos } = useTodos();
   const { currentBg, setCurrentBg, backgroundImages } = useBackground();
   const { stats, recordSession, resetStats } = useStats();
-  const { theme, toggleTheme } = useTheme();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   return (
@@ -73,7 +69,6 @@ function App() {
       </div>
 
       <div className="absolute bottom-6 right-6 z-20 flex gap-3">
-        <ThemeToggle theme={theme} onToggle={toggleTheme} />
         <BackgroundSelector
           images={backgroundImages}
           selected={currentBg}
